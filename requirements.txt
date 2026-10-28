@@ -1,0 +1,6 @@
+# pip alternative to environment.yml (for users without conda):
+#   python -m venv .venv
+#   .venv\Scripts\activate        (Windows)   or   source .venv/bin/activate   (macOS/Linux)
+#   pip install -r requirements.txt
+numpy>=2.0
+matplotlib>=3.7
