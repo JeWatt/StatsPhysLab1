@@ -1,0 +1,16 @@
+# Generated output (recreate with: python part1.py && python part2.py).
+# Remove this line if you want the figures and logs stored on GitHub.
+results/
+
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editors and operating systems
+.vscode/
+.idea/
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db

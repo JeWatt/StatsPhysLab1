@@ -1,0 +1,22 @@
+# Conda environment for the coin-microstates project.
+#
+# Create it once:      conda env create -f environment.yml
+# Activate it:         conda activate coin-microstates
+# Update after edits:  conda env update -f environment.yml --prune
+#
+# conda-forge is used because it has the newest NumPy builds for Windows,
+# macOS and Linux. NumPy >= 2.0 provides np.bitwise_count (hardware
+# popcount), which makes the Part 1b benchmark ~2x faster; older NumPy
+# still works through a slower look-up table.
+name: coin-microstates
+channels:
+  - conda-forge
+  - default
+dependencies:
+  - python>=3.10
+  - numpy>=2.0
+  - matplotlib>=3.7
+  - scipy>=1.10
+  - matplotlib>=3.7
+  - pytest>=7.0
+  - jupyter
