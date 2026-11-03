@@ -1,101 +1,108 @@
-# Coin Microstates
+# Coin Microstates — Statistical Physics Lab 1
 
-Microstates, macrostates, probabilities and entropy of **N unbiased coins**, the simplest two-state system in statistical physics. This is a Python port of the MATLAB script `CoinMicrostates.m`, written for a practice assignment in statistical thermodynamics.
+Microstates, macrostates, probabilities and entropy of **N unbiased coins**, the simplest two-state system in statistical physics, computed for the practice assignment *"Probabilities, Entropy, and Thermodynamics"*.
 
-| Program    | Assignment questions | What it does |
-|------------|----------------------|--------------|
-| `part1.py` | Part 1 a–e | Lists all N = 7 microstates, benchmarks full enumeration, plots Ω(N,k) for N = 20–100, finds the floating-point limits, and shows the distribution sharpening as N → 10²³ |
-| `part2.py` | Part 2 a–k | Computes probabilities, entropy changes, the waiting time for 8 heads, likelihood ratios and the Second Law for N = 100 + M, then repeats the questions for N ~ 10²³ |
-| `coin_common.py` | — | Shared helpers imported by both programs (formulas, enumeration, logging, figures). Not run on its own. |
+The programs need **no input while running**. Every setting is in `settings.py`.
 
-## Setup (conda)
+| File | Role |
+|------|------|
+| `settings.py` | **The only file to edit**: team NIA digits, benchmark on/off, output folder, show figures |
+| `run_all.py` | Runs Part 1 and Part 2 in one go |
+| `part1.py` | Part 1 a–e: lists all N = 7 microstates, benchmarks full enumeration, plots Ω(N,k) for N = 20–100, finds the floating-point limits, and shows the distribution sharpening as N → 10²³ |
+| `part2.py` | Part 2 a–k: probabilities, entropy changes, the waiting time for 8 heads, the likelihood ratio and the Second Law for N = 100 + M, then the same questions for N ~ 10²³ |
+| `coin_common.py` | Shared formulas and helpers imported by the programs (not run on its own) |
+| `test_coin_microstates.py` | Automatic checks of the maths, run with `pytest` |
 
-You only need to do this once per computer.
+## This team's parameters
 
-```bash
-cd coin-microstates
+- NIA endings: **91, 01, 16, 29**
+- Harmonic mean = 4 / (1/91 + 1/1 + 1/16 + 1/29) = **3.610**
+- Rounded to M = **4**, so **N = 104**
+
+The harmonic mean is pulled strongly toward the smallest value, so the 01 dominates; the arithmetic mean would be 34.25. This follows directly from the assignment's definition of M.
+
+## Setup (once per computer)
+
+```powershell
 conda env create -f environment.yml
 conda activate coin-microstates
 ```
 
-If you use pip instead of conda, follow the instructions at the top of `requirements.txt`.
+**Windows PowerShell / VS Code:** if `conda` is "not recognized", or you see "running scripts is disabled on this system", run the following once and then open a new terminal:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
+```
+
+If `conda` still isn't recognised, run this once and then restart VS Code:
+
+```powershell
+& "C:\Anaconda3\Scripts\conda.exe" init powershell
+```
 
 ## Running
 
-Run these with the environment active, from inside the project folder:
+**In VS Code:**
 
-```bash
-python part1.py                          # Part 1 without the long benchmark (a few seconds)
-python part1.py --benchmark              # adds the Part 1b benchmark (~10 min, 5-min budget per run)
-python part1.py --benchmark --budget 60  # quicker benchmark for testing
+1. Press Ctrl+Shift+P, choose *Python: Select Interpreter*, and pick `coin-microstates`. If it isn't listed, choose *Enter interpreter path…* and paste `C:\Anaconda3\envs\coin-microstates\python.exe`.
+2. Open `run_all.py` (or `part1.py` / `part2.py`) and press the **▶ Run** button.
 
-python part2.py --nia 47 83 26           # your team's last two NIA digits, one per member
-python part2.py --nia 47 83 26 --rounding floor
+**In a terminal**, with the environment active:
+
+```powershell
+python run_all.py        # both parts
+python part1.py          # Part 1 only
+python part2.py          # Part 2 only
 ```
 
-Other options: `--outdir <folder>` changes where results go, `--no-save` writes nothing, and `--show` opens the figures in windows. Run any program with `--help` to list every option.
+To change anything (team digits, the 5-minute benchmark, showing figures), edit `settings.py`, save, and run again.
 
-You can also open the files in **Spyder** (included with Anaconda) or **VS Code** and press Run. To pass options there, use Spyder's *Run > Configuration per file > Command line options*, or edit `DEFAULT_NIA` near the top of `part2.py`.
+**Part 1b benchmark:** it is **off** by default so runs take a few seconds. For the final report run, set `RUN_BENCHMARK = True` in `settings.py`. The run then takes about 10 minutes, because each enumeration has a 5-minute budget and the benchmark stops after the run that comes closest to it.
 
 ## Output
 
-Everything is written to `results/`:
+Everything is written to the `results/` folder next to the programs:
 
 | File | Content |
 |------|---------|
 | `part1_log.txt`, `part2_log.txt` | Full console output, to quote in the report |
 | `part1a_N7_microstates.txt` | Complete N = 7 listing (appendix) |
-| `part1b_timing.png` | Enumeration time vs N (with `--benchmark`) |
-| `part1c_distributions.png`, `part1c_Omega_table.csv` | Ω(N,k) for N = 20, 50, 80, 100 (exact integers in the CSV) |
+| `part1b_timing.png` | Enumeration time vs N (when `RUN_BENCHMARK = True`) |
+| `part1c_distributions.png` | Ω(N,k) for N = 20, 50, 80, 100 in a single plot (log axis) |
+| `part1c_Omega_table.csv` | Exact Ω(N,k) integers for the same N |
 | `part1e_sharpening.png` | Normalised peaks for N = 10² … 10⁶ |
-| `part2_probabilities_entropy.png` | P_k and S(k) for your N |
-| `part2_results_N<N>.csv` | Part 2 summary table with units |
+| `part2_probabilities_entropy.png` | P_k and S(k) for N = 104 |
+| `part2_results_N104.csv` | Part 2 summary table with units and uncertainties |
+
+## Checking the maths
+
+```powershell
+pytest
+```
+
+This runs `test_coin_microstates.py` (34 checks). Each check compares a formula or algorithm with an independent exact calculation: binomial coefficients, the enumeration engine, the large-N formulas, M and N for this team, and the Part 2 probabilities for N = 104. In VS Code you can also use the Testing panel (flask icon) → *Configure Python Tests* → **pytest** → root folder.
 
 ## Conventions and interpretations
 
-These are the same as in the MATLAB version. Confirm them with the instructor:
+- **M:** the harmonic mean of the two-digit NIA endings, rounded half up, so 2.5 becomes 3 (Python's built-in `round()` would round 2.5 down to 2). `M_ROUNDING` in `settings.py` can switch to `floor` or `ceil`.
+- **Odd N:** "N/2" means ⌊N/2⌋, with symmetric ±10 and ±20 windows. This doesn't apply to N = 104, but it's handled.
+- **2h:** the whole set of N coins is re-tossed once per second. The mean waiting time is 1/P₈, and its standard deviation (geometric distribution) is reported as the uncertainty.
+- **2i:** the garbled "M ± 10" in the handout is read as **N/2 ± 10** heads, the same window as question 2c. The literal reading, 4 ± 10, would include −6 heads, which doesn't exist.
+- **Entropy:** S = k_B ln Ω (natural log), with k_B = 1.380649 × 10⁻²³ J/K (exact since the 2019 SI redefinition).
+- **Uncertainties:** every tabulated Ω is an exact integer, and every probability or ratio is an exact integer ratio rounded once to a double. The numerical uncertainty is therefore relative < 1.1 × 10⁻¹⁶. The large-N formulas are validated against exact values at N = 200, and the logs print their errors.
 
-- **M** is the harmonic mean of each member's two-digit NIA ending, rounded half away from zero (MATLAB's convention). Choose `floor` or `ceil` with `--rounding`.
-- **Odd N:** "N/2" means ⌊N/2⌋. The ±10 and ±20 windows are kept symmetric.
-- **2h:** the whole set of N coins is re-tossed once per second. The mean waiting time is 1/P₈, and its standard deviation is reported as the uncertainty.
-- **2i:** the handout text is garbled, so both readings, N/2 ± 10 and M ± 10, are printed.
-- **Entropy** is S = k_B ln Ω (natural log), with k_B = 1.380649 × 10⁻²³ J/K (exact since the 2019 SI redefinition).
+## Numerical notes
 
-## Differences from the MATLAB version
-
-- **Exact integers.** Python integers have unlimited precision, so every tabulated Ω(N,k) is exact (`math.comb`), and probabilities carry only one final rounding (< 1.1 × 10⁻¹⁶ relative). Part 1c also prints the measured error of MATLAB's double-precision Pascal triangle, for comparison.
-- **Part 1d** also shows that exact integers never overflow (it computes N = 5000 directly). With exact integers the limits become time and memory, plus the conversion to `float` for plotting.
-- **Rounding:** Python's built-in `round()` rounds half to even (`round(42.5) == 42`). `part2.py` uses `floor(x + 0.5)` so that M matches MATLAB.
-- **Settings** are command-line options rather than variables edited inside the script.
-- **Part 1b** uses NumPy's hardware popcount (`np.bitwise_count`, NumPy ≥ 2.0). It is roughly twice as fast as the MATLAB look-up table in single-core tests.
-
-## Going faster (Part 1b)
-
-Each doubling of speed adds one coin to the maximum N. These options are not implemented, but they fit the code structure (`enumerate_macrostates` in `coin_common.py`):
-
-- **Numba** (`conda install numba`): an `@njit(parallel=True)` loop uses every CPU core, typically 10–50× faster than NumPy.
-- **CuPy** on an NVIDIA GPU: the same NumPy-style code runs on the GPU, about 100× faster or more on an RTX-class card.
-- **multiprocessing** (standard library): split the chunks across CPU cores.
+- **Exact integers:** Python integers have unlimited precision, so every Ω(N,k) is exact (`math.comb`). For comparison, Part 1c also prints the rounding error the same calculation would have in double-precision floats.
+- **Part 1d** shows that exact integers never overflow (it computes N = 5000 directly). With exact integers the limits become time and memory, plus the conversion to `float` for plotting.
+- **Part 1b** uses NumPy's hardware popcount (`np.bitwise_count`, NumPy ≥ 2.0).
 
 ## Uploading to GitHub
 
-The `.gitignore` already excludes `results/` and Python caches, so only the source files are uploaded. If you want the figures on GitHub, remove the `results/` line from `.gitignore`.
+`.gitignore` excludes `results/`, Python caches and the pytest cache, so only the source files are uploaded. If you want the figures and logs on GitHub, delete the `results/` line from `.gitignore`.
 
-There are three ways to upload:
+To upload, use VS Code's Source Control panel (Ctrl+Shift+G) or GitHub Desktop. Commit the changes, then push.
 
-- **Website (no tools needed).** Create a new empty repository on github.com, then use *Add file > Upload files* and drag in the contents of this folder. Hidden files such as `.gitignore` may need to be selected explicitly.
-- **GitHub Desktop.** Use *File > Add local repository*, choose this folder, create the repository, then click *Publish repository*.
-- **Command line:**
+## AI Disclaimer
 
-  ```bash
-  git init
-  git add .
-  git commit -m "Coin microstates: Python port of Parts 1 and 2"
-  git branch -M main
-  git remote add origin https://github.com/<your-user>/coin-microstates.git
-  git push -u origin main
-  ```
-
-To keep the MATLAB version in the same repository, add `CoinMicrostates.m` in a `matlab/` subfolder.
-
-**License:** none is included. Add one (for example MIT) before making the repository public if you want others to be able to reuse the code.
+As directed from our instructor, we worked to use AI to format, comment, and clean up our program in order to make a nice github repo. We also used AI to help with logic for our program and not that originally we planned on using MATLAB but were directed to use python for our script. AI was very helpful in converting our MATLAB script to python.

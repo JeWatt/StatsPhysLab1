@@ -4,19 +4,23 @@
 # Activate it:         conda activate coin-microstates
 # Update after edits:  conda env update -f environment.yml --prune
 #
-# conda-forge is used because it has the newest NumPy builds for Windows,
-# macOS and Linux. NumPy >= 2.0 provides np.bitwise_count (hardware
-# popcount), which makes the Part 1b benchmark ~2x faster; older NumPy
-# still works through a slower look-up table.
+# Only conda-forge is used. Mixing it with Anaconda's "defaults" channel
+# (note: the name is "defaults", with an s) often makes conda slow or gives
+# conflicting packages, so one channel is the safer choice.
+#
+# NumPy >= 2.0 provides np.bitwise_count (hardware popcount), which makes the
+# Part 1b benchmark ~2x faster; older NumPy still works through a slower
+# look-up table.
 name: coin-microstates
 channels:
   - conda-forge
-  - default
 dependencies:
   - python>=3.10
+  # required by the programs
   - numpy>=2.0
   - matplotlib>=3.7
-  - scipy>=1.10
-  - matplotlib>=3.7
+  # runs the automatic checks in test_coin_microstates.py ("pytest")
   - pytest>=7.0
+  # optional: not used by the programs, kept for your own experiments
+  - scipy>=1.10
   - jupyter

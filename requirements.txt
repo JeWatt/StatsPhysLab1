@@ -4,3 +4,4 @@
 #   pip install -r requirements.txt
 numpy>=2.0
 matplotlib>=3.7
+pytest>=7.0

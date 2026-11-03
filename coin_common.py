@@ -10,8 +10,7 @@ programs of the project:
 
 Keeping the shared code here (instead of copying it into both programs)
 means every formula exists exactly once, so a fix in one place fixes both
-programs. It corresponds to the "LOCAL FUNCTIONS" block at the end of the
-MATLAB script CoinMicrostates.m.
+programs.
 
 Contents
 --------
@@ -21,22 +20,26 @@ Logarithmic formulas ...... ln_binom, ln_binom_small_k, ln_p_central,
                             ln_ratio_central
 Part 1b enumeration ....... enumerate_macrostates
 Reporting utilities ....... start_logging, stop_logging, banner, hbytes,
-                            wrap_list, save_fig, available_ram_bytes
+                            wrap_list, get_pyplot, save_fig,
+                            available_ram_bytes
 
-Python vs MATLAB: one important difference
-------------------------------------------
+All user settings (team NIA digits, benchmark on/off, output folder) live
+in settings.py, not here.
+
+Exact integers vs floating point
+--------------------------------
 Python integers have UNLIMITED precision. math.comb(100, 50) returns the
-exact 29-digit integer 100891344545564193334812497256, whereas MATLAB
-doubles are exact only below 2^53 ~ 9.0e15. This project therefore uses
+exact 29-digit integer 100891344545564193334812497256, whereas
+double-precision floats (float64) are exact only below 2^53 ~ 9.0e15. This project therefore uses
 EXACT integers for every Omega(N, k) that is tabulated (Parts 1a-1c, 2a-2j)
 and converts to float only at the very end (division by 2^N, logarithms,
 plotting). Python's int/int division is correctly rounded, so each printed
 probability carries a relative error of at most 2^-53 ~ 1.1e-16.
 
-The floating-point (double precision) Pascal triangle used by the MATLAB
-version is still provided (pascal_row_float) because Part 1d is precisely
-about the limits of double precision, and Part 1c uses it to MEASURE the
-rounding error that MATLAB would have.
+A floating-point (double precision) Pascal triangle is also provided
+(pascal_row_float) because Part 1d is precisely about the limits of double
+precision, and Part 1c uses it to MEASURE the rounding error that a
+floating-point calculation would carry.
 """
 
 from __future__ import annotations
@@ -66,8 +69,7 @@ def omega_row_exact(N: int) -> list[int]:
     """Exact multiplicities Omega(N, k) = C(N, k) for k = 0..N.
 
     Uses math.comb, which returns an exact Python integer of any size.
-    Element k of the returned list is Omega(N, k) (Python lists start at 0,
-    so, unlike MATLAB, no "+1" index offset is needed).
+    Element k of the returned list is Omega(N, k) (Python lists start at 0).
 
     ALTERNATIVES
       - Build Tartaglia's triangle with integers:
@@ -84,7 +86,7 @@ def omega_row_exact(N: int) -> list[int]:
 def pascal_row_float(N: int) -> np.ndarray:
     """Row N of Tartaglia's triangle computed in IEEE double precision.
 
-    This reproduces the MATLAB function pascalRow exactly:
+    It builds Tartaglia's triangle row by row:
         Omega(n, k) = Omega(n-1, k-1) + Omega(n-1, k)
     written as the previous row padded with a zero on the right plus the
     previous row padded with a zero on the left.
@@ -167,8 +169,8 @@ def _popcount(x: np.ndarray, N: int) -> np.ndarray:
 
     Preferred: np.bitwise_count (NumPy >= 2.0), a ufunc that uses the CPU's
     hardware POPCNT instruction - one machine instruction per microstate.
-    Fallback for NumPy 1.x: the same 65,536-entry look-up table as the
-    MATLAB version, applied to each 16-bit slice of x.
+    Fallback for NumPy 1.x: a 65,536-entry look-up table (the popcount of
+    every 16-bit value), applied to each 16-bit slice of x.
     """
     if hasattr(np, "bitwise_count"):
         return np.bitwise_count(x)
@@ -221,7 +223,7 @@ def enumerate_macrostates(N: int, chunk_bits: int = 22) -> tuple[np.ndarray, flo
 class _Tee:
     """Write everything to several streams (console + log file).
 
-    Python equivalent of MATLAB's `diary`: after start_logging(), every
+    After start_logging(), every
     print() goes both to the screen and to the log file.
     ALTERNATIVE: the `logging` module (levels, timestamps), or simply run
     `python part1.py > log.txt` and read the file afterwards.
@@ -279,10 +281,25 @@ def wrap_list(items: list[str], per_line: int) -> list[str]:
     return [", ".join(items[i:i + per_line]) for i in range(0, len(items), per_line)]
 
 
+def get_pyplot(show: bool):
+    """Return matplotlib.pyplot with a backend suited to the run.
+
+    show = False -> "Agg" backend: figures are drawn straight to PNG files
+                    and no windows open (also works on servers / over SSH).
+    show = True  -> Matplotlib's default interactive backend, so the
+                    figures can be opened with plt.show() at the end.
+    """
+    import matplotlib
+    if not show:
+        matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    return plt
+
+
 def save_fig(fig, out_dir: Path | None, name: str) -> None:
     """Save a Matplotlib figure as a 200-dpi PNG in out_dir (if given).
 
-    bbox_inches='tight' crops white margins, like MATLAB's exportgraphics.
+    bbox_inches='tight' crops white margins.
     ALTERNATIVE: save as .pdf or .svg (vector graphics) for a LaTeX report:
         fig.savefig(out_dir / f"{name}.pdf")
     """

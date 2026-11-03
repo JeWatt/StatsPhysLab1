@@ -2,9 +2,10 @@
 # Remove this line if you want the figures and logs stored on GitHub.
 results/
 
-# Python caches and virtual environments
+# Python caches, test caches and virtual environments
 __pycache__/
 *.py[cod]
+.pytest_cache/
 .venv/
 venv/
 
