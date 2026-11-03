@@ -13,7 +13,7 @@ The programs need **no input while running**. Every setting is in `settings.py`.
 | `coin_common.py` | Shared formulas and helpers imported by the programs (not run on its own) |
 | `test_coin_microstates.py` | Automatic checks of the maths, run with `pytest` |
 
-## This team's parameters
+## Our Parameters
 
 - NIA endings: **91, 01, 16, 29**
 - Harmonic mean = 4 / (1/91 + 1/1 + 1/16 + 1/29) = **3.610**
